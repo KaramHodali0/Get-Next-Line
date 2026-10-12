@@ -5,152 +5,108 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: kalhouda <kalhouda@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/10 01:26:23 by kalhouda          #+#    #+#             */
-/*   Updated: 2026/10/11 02:02:13 by kalhouda         ###   ########.fr       */
+/*   Created: 2026/10/12 11:22:52 by kalhouda          #+#    #+#             */
+/*   Updated: 2026/10/12 15:06:18 by kalhouda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*Read_Add_To_Stash(int fd, char *stash)
+static char	*free_both(char *a, char *b)
 {
+	free(a);
+	free(b);
+	return (NULL);
+}
+
+static char	*read_to_stash(int fd, char *stash)
+{
+	char	*new;
 	char	*buffer;
-	ssize_t	bytes_read;
+	ssize_t	how_many_time_read;
 
 	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
-	{
-		free(stash);
-		return (NULL);
-	}
+		return (free(stash), NULL);
 	stash = init_stash(stash);
-	if (!stash)	
-		return (NULL);
-	while (!(ft_strchr(stash, '\n')))
+	if (!stash)
+		return (free(buffer), NULL);
+	how_many_time_read = 1;
+	while (!ft_strchr(stash, '\n') && how_many_time_read > 0)
 	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1)
-			return (free(buffer), free(stash), NULL);
-		if (bytes_read == 0)
-			break ;
-		buffer[bytes_read] = '\0';
-		stash = ft_strjoin(stash, buffer);
+		how_many_time_read = read(fd, buffer, BUFFER_SIZE);
+		if (how_many_time_read < 0)
+			return (free_both(buffer, stash), stash = NULL, NULL);
+		buffer[how_many_time_read] = '\0';
+		new = ft_strjoin(stash, buffer);
+		free(stash);
+		stash = new;
+		if (!new)
+			return (free(buffer), NULL);
 	}
-	free(buffer);
-	return (stash);
+	return (free(buffer), stash);
 }
 
 static char	*extract_line(char *stash)
 {
-	char	*res;
+	char	*str_before_newline;
 	int		i;
 
-	i = 0;
-	if (!stash)
+	if (!stash || stash[0] == '\0')
 		return (NULL);
+	i = 0;
 	while (stash[i] && stash[i] != '\n')
-		i++;
-	i += (stash[i] == '\n');
-	res = malloc(i + 1);
-	if (!res)
-	{
-		free(stash);
-		return (NULL);
-	}
-	ft_memcpy(res, stash, i);
-	res[i] = '\0';
-	return (res);
-}
-
-char	*update_stash(char *stash)
-{
-	size_t	i;
-	size_t	j;
-	size_t	index_first_newline;
-	char	*new_stash;
-
-	index_first_newline = 0;
-	i = 0;
-	j = 0;
-	while (stash[i] != '\n' && stash[i])
 		i++;
 	if (stash[i] == '\n')
 		i++;
-	index_first_newline = i;
-	if (stash[i] == '\0')
-		return (free(stash), NULL);
-	while (stash[i] != '\n' && stash[i] != '\0')
-	{
-		i++;
-		j++;
-	}
-	new_stash = malloc(j + 1);
-	if (!new_stash)
-		return (free(stash), NULL);
-	ft_memcpy(new_stash, stash + index_first_newline, j);
-	new_stash[j] = '\0';
-	free(stash);
-	return (new_stash);
+	str_before_newline = malloc(i + 1);
+	if (!str_before_newline)
+		return (NULL);
+	ft_memcpy(str_before_newline, stash, i);
+	if (!str_before_newline)
+		return (NULL);
+	str_before_newline[i] = '\0';
+	return (str_before_newline);
 }
 
-char	*has_newline(char *stash)
+static char	*update_stash(char *stash)
 {
 	char	*str_after_newline;
-	size_t	i;
-	size_t	j;
+	int		i;
+	int		j;
+	int		index_letter_after_newline;
 
 	i = 0;
-	j = 0;
 	while (stash[i] && stash[i] != '\n')
 		i++;
-	if (stash[i] != '\n' || stash[i + 1] == '\0')
-		return (NULL);
-	i++;
-	while (stash[i + j])
+	if (!stash[i] || !stash[i + 1])
+		return (free(stash), NULL);
+	index_letter_after_newline = i + 1;
+	j = 0;
+	while (stash[index_letter_after_newline + j])
 		j++;
 	str_after_newline = malloc(j + 1);
 	if (!str_after_newline)
-		return (NULL);
-	ft_memcpy(str_after_newline, stash + i, j);
+		return (free(stash), NULL);
+	ft_memcpy(str_after_newline, stash + index_letter_after_newline, j);
 	str_after_newline[j] = '\0';
+	free(stash);
 	return (str_after_newline);
 }
 
 char	*get_next_line(int fd)
 {
-	char		*line;
 	static char	*stash;
+	char		*line;
 
-	stash = NULL;
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)
+	if (BUFFER_SIZE <= 0 || fd < 0)
 		return (NULL);
-	stash = Read_Add_To_Stash(fd, stash);
-	if (stash == NULL)
+	stash = read_to_stash(fd, stash);
+	if (!stash)
 		return (NULL);
 	line = extract_line(stash);
 	if (!line)
-		return (NULL);
+		return (free(stash), stash = NULL, NULL);
 	stash = update_stash(stash);
-	if (!stash)
-		return (NULL);
 	return (line);
 }
-
-// buffer < 0
-// everything include malloc
-
-/* تحتوي على البيانات التي قرأتها ولم تُرجعها بعد
-// ... rest of the function
-buffer
-المكان الذي تضع فيه البيانات التي قرأتها للتو باستخدام read().
-saved أو stash
-البيانات التي تحتفظ بها بين الاستدعاءات، حتى لا تفقد أي bytes لم تُرجعها بعد.
-line
-الـ string التي ستُرجعها الدالة للمستخدم في هذا الاستدعاء.
-*/
-
-/*
-1. has_newline(): انتبه إلى أنها تُرجع NULL إذا لم يوجد محتوى بعد \n، وكذلك إذا لم يوجد \n أصلًا. هاتان حالتان مختلفتان منطقيًا، رغم أنهما تعيدان القيمة نفسها.
-2. get_next_line(): الدالة غير مكتملة حاليًا، لذلك لا يمكنني الحكم على ترتيب استدعاء الدوال أو إدارة الـ stash بين الاستدعاءات.
-ملاحظة مهمة: لديك أيضًا static char *buffer; وstatic char *stash;، لكن buffer داخل Read_Add_To_Stash() متغير محلي منفصل. لا تحتاج إلى جعل buffer داخل get_next_line() متغيرًا static إذا كنت ستستخدمه فقط لتخزين البيانات المقروءة مؤقتًا.
-*/

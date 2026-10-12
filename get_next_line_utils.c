@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: kalhouda <kalhouda@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/10/10 15:02:43 by kalhouda          #+#    #+#             */
-/*   Updated: 2026/10/11 01:49:01 by kalhouda         ###   ########.fr       */
+/*   Created: 2026/10/12 11:23:38 by kalhouda          #+#    #+#             */
+/*   Updated: 2026/10/12 11:23:44 by kalhouda         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,4 +79,16 @@ char	*init_stash(char *stash)
 		stash[0] = '\0';
 	}
 	return (stash);
+}
+
+size_t	ft_strlen(const char *s)
+{
+	int		i;
+	size_t	counter;
+
+	i = 0;
+	counter = 0;
+	while (s[i++] != '\0')
+		counter++;
+	return (counter);
 }

@@ -23,6 +23,9 @@ static char	*Read_Add_To_Stash(int fd, char *stash)
 		free(stash);
 		return (NULL);
 	}
+	stash = init_stash(stash);
+	if (!stash)	
+		return (NULL);
 	while (!(ft_strchr(stash, '\n')))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
@@ -115,18 +118,36 @@ char	*has_newline(char *stash)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
+	char		*line;
+	static char	*stash;
 
-	static char *stash; /* تحتوي على البيانات التي قرأتها ولم تُرجعها بعد
-	// ... rest of the function
+	stash = NULL;
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) < 0)
+		return (NULL);
+	stash = Read_Add_To_Stash(fd, stash);
+	if (stash == NULL)
+		return (NULL);
+	line = extract_line(stash);
+	if (!line)
+		return (NULL);
+	stash = update_stash(stash);
+	if (!stash)
+		return (NULL);
+	return (line);
+}
+
+// buffer < 0
+// everything include malloc
+
+/* تحتوي على البيانات التي قرأتها ولم تُرجعها بعد
+// ... rest of the function
 buffer
 المكان الذي تضع فيه البيانات التي قرأتها للتو باستخدام read().
 saved أو stash
 البيانات التي تحتفظ بها بين الاستدعاءات، حتى لا تفقد أي bytes لم تُرجعها بعد.
 line
 الـ string التي ستُرجعها الدالة للمستخدم في هذا الاستدعاء.
-	*/
-}
+*/
 
 /*
 1. has_newline(): انتبه إلى أنها تُرجع NULL إذا لم يوجد محتوى بعد \n، وكذلك إذا لم يوجد \n أصلًا. هاتان حالتان مختلفتان منطقيًا، رغم أنهما تعيدان القيمة نفسها.

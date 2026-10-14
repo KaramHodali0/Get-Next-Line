@@ -1,6 +1,3 @@
-*This activity has been created as part of the 42 curriculum by kalhouda.*
-
-# Get Next Line
 
 ## Description
 
@@ -118,27 +115,3 @@ The algorithm also supports different buffer sizes, making it possible to test t
 - Handles files that end without a newline.
 - Uses dynamic memory allocation to construct returned lines.
 - Returns `NULL` when no further line can be returned or when an error occurs.
-
-## Resources
-
-### Documentation and References
-
-- [The Open Group — `read()`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/read.html): documentation for reading data from a file descriptor.
-- [The Open Group — `malloc()`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/malloc.html): documentation for dynamic memory allocation.
-- [The Open Group — `free()`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/free.html): documentation for releasing allocated memory.
-- [GNU C Library Manual](https://www.gnu.org/software/libc/manual/): additional information about C library functions and memory management.
-- *The C Programming Language*, Brian W. Kernighan and Dennis M. Ritchie: a reference for C fundamentals, pointers, arrays, and strings.
-- *The Standard C Library*, P. J. Plauger: a reference for standard C library functions and their behavior.
-
-### AI Usage
-
-AI tools were used as learning and development assistance during this project.
-
-They were used to:
-
-- Explain concepts related to file descriptors, `read()`, static variables, pointers, and dynamic memory allocation.
-- Clarify the buffered-reading algorithm and the purpose of preserving unread data between function calls.
-- Help interpret compiler errors, test results, and memory-checking reports.
-- Support debugging by identifying potential issues and explaining possible solutions.
-
-The project implementation, testing, and final validation remain the responsibility of the student. AI assistance was used as a learning resource rather than a replacement for understanding the code.
